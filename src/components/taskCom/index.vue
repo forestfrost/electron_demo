@@ -10,10 +10,23 @@
         </el-button>
       </div>
     </div>
+    <div class="container">
+      <task-item
+        v-for="item in taskStore.taskList"
+        @handle-commit="taskStore.doneTask(item)"
+        @handle-cancel="taskStore.cancelTask(item)"
+        :title="item.title"
+        :time="item.time"
+      ></task-item>
+    </div>
   </div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+  import TaskItem from "./components/taskItem.vue";
+  import { useTask } from "@/store/models/task";
+  const taskStore = useTask();
+</script>
 <style lang="less" scoped>
   .task-block {
     box-sizing: border-box;

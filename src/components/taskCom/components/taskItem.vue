@@ -5,15 +5,15 @@
       <p class="des">{{ props.time }}</p>
     </div>
 
-    <div class="operate-block flex-space-between">
-      <el-button @click="">
+    <div class="flex-space-between">
+      <el-button circle type="primary" @click="commit">
         <template #icon>
           <el-icon>
             <check />
           </el-icon>
         </template>
       </el-button>
-      <el-button>
+      <el-button circle type="info" @click="cancel">
         <template #icon>
           <el-icon>
             <close />
@@ -36,21 +36,28 @@
     },
   });
   const emit = defineEmits(["handleCommit", "handleCancel"]);
+  const commit = () => {
+    emit("handleCommit", { title: props.title, time: props.time });
+  };
+  const cancel = () => {
+    emit("handleCancel", { title: props.title, time: props.time });
+  };
 </script>
 <style lang="less" scoped>
   .task-item {
+    width: 100%;
+    height: 50px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     .des {
       font-size: 15px;
       color: gray;
     }
-    .operate-block {
-      width: 60px;
-    }
     .flex-space-between {
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
   }
 </style>
