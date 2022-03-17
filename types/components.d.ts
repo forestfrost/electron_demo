@@ -6,7 +6,10 @@ declare module 'vue' {
   export interface GlobalComponents {
     ElButton: typeof import('element-plus/es')['ElButton']
     ElConfigProvider: typeof import('element-plus/es')['ElConfigProvider']
+    ElDialog: typeof import('element-plus/es')['ElDialog']
     ElIcon: typeof import('element-plus/es')['ElIcon']
+    ElInput: typeof import('element-plus/es')['ElInput']
+    ElTimeSelect: typeof import('element-plus/es')['ElTimeSelect']
     NoteCom: typeof import('./../src/components/noteCom/index.vue')['default']
     TaskCom: typeof import('./../src/components/taskCom/index.vue')['default']
     TaskItem: typeof import('./../src/components/taskCom/components/taskItem.vue')['default']

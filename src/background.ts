@@ -15,7 +15,7 @@ import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { resolve } from "path";
 const isDevelopment = process.env.NODE_ENV !== "production";
 const iconPath = resolve(
-  "D:\\vscode\\node\\electron_demo\\public\\favicon.ico"
+  "D:\\repo\\electron_demo\\public\\favicon.ico"
 );
 let tray: Tray;
 let win: BrowserWindow;
@@ -28,7 +28,7 @@ protocol.registerSchemesAsPrivileged([
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    frame: true,
+    frame: false,
     width: 1600,
     height: 1200,
     x: 0,
@@ -100,7 +100,7 @@ app.on("ready", async () => {
 
 app.whenReady().then(async () => {
   session.defaultSession.loadExtension(
-    resolve("D:\\vscode\\devtools\\packages\\shell-chrome")
+    resolve("D:\\repo\\devtools\\packages\\shell-chrome")
   );
 });
 
