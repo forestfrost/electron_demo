@@ -2,18 +2,18 @@
   <div class="task-item">
     <div class="flex-space-between">
       <p class="des"> {{ props.title }}</p>
-      <p class="des">{{ props.time }}</p>
+      <p class="des">{{ time }}</p>
     </div>
 
     <div class="flex-space-between">
-      <el-button circle type="primary" @click="commit">
+      <el-button v-if="props.status == 'wait'" circle type="primary" @click="commit">
         <template #icon>
           <el-icon>
             <check />
           </el-icon>
         </template>
       </el-button>
-      <el-button circle type="info" @click="cancel">
+      <el-button v-if="props.status == 'wait'" circle type="info" @click="cancel">
         <template #icon>
           <el-icon>
             <close />
@@ -25,6 +25,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { formatDate } from "@/utils/common";
   const props = defineProps({
     title: {
       type: String,
@@ -34,6 +35,9 @@
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+    },
   });
   const emit = defineEmits(["handleCommit", "handleCancel"]);
   const commit = () => {
@@ -42,6 +46,13 @@
   const cancel = () => {
     emit("handleCancel", { title: props.title, time: props.time });
   };
+  const time = computed(() => {
+    if (props.status === "wait") {
+      return formatDate(props.time, "HH:mm");
+    } else if (props.status === "done") {
+      return props.time;
+    }
+  });
 </script>
 <style lang="less" scoped>
   .task-item {
@@ -51,6 +62,8 @@
     justify-content: space-between;
     align-items: center;
     .des {
+      width: 160px;
+      margin-right: 26px;
       font-size: 15px;
       color: gray;
     }

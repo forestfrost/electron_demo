@@ -1,35 +1,48 @@
 <template>
-  <el-dialog v-model="_visible" :close-on-click-modal="false" width="30%" center>
+  <el-dialog
+    v-model="_visible"
+    :close-on-click-modal="false"
+    width="30%"
+    center
+    custom-class="task-add-dialog"
+    @close="closeDialog(ruleForm)"
+  >
     <div class="task-com-dialog-con">
-      <div class="row">
-        <p class="label">名称：</p>
-        <el-input v-model="form.name" clearable placeholder="请输入"></el-input>
-      </div>
-      <div class="row">
-        <p class="label">时间：</p>
-        <el-time-select
-          v-model="form.time"
-          start="08:30"
-          step="00:05"
-          end="22:30"
-          placeholder="请选择"
-        />
-      </div>
+      <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100">
+        <el-form-item prop="name" label="名称">
+          <el-input
+            v-model.trim="form.name"
+            clearable
+            placeholder="请输入"
+            maxLength="30"
+            :show-word-limit="true"
+          ></el-input>
+        </el-form-item>
+        <el-form-item prop="time" label="时间">
+          <el-time-select
+            v-model="form.time"
+            :start="formatDate(now, 'HH:mm')"
+            step="00:15"
+            end="22:30"
+            placeholder="请选择"
+          />
+        </el-form-item>
+      </el-form>
     </div>
     <template #title>
       <p class="task-dialog-title">新建任务</p>
     </template>
     <template #footer>
-      <el-button @click="submit" type="success" size="small">确认</el-button>
-      <el-button @click="visible = false" type="info" size="small" plain>返回</el-button>
+      <el-button @click="submit(ruleForm)" type="success" size="small">确认</el-button>
+      <el-button @click="_visible = false" size="small" plain>返回</el-button>
     </template>
   </el-dialog>
 </template>
 <script lang="ts" setup>
-  import { reactive, computed } from "vue";
+  import { reactive, computed, ref, WritableComputedRef } from "vue";
   import { useTask } from "@/store/models/task";
-  import { ElMessage } from "element-plus";
-
+  import { ElMessage, FormInstance } from "element-plus";
+  import { formatDate, Before, setDateByHoursAndMinutes } from "@/utils/common";
   const props = defineProps({
     visible: {
       type: Boolean,
@@ -37,7 +50,7 @@
     },
   });
   const emit = defineEmits(["update:visible"]);
-  const _visible = computed({
+  const _visible: WritableComputedRef<boolean> = computed({
     set(val) {
       emit("update:visible", val);
     },
@@ -45,33 +58,59 @@
       return props.visible;
     },
   });
-  const form = reactive({
+  let form = reactive({
     name: "",
     time: "",
   });
-  const submit = () => {
-    if (form.name == "") {
-      ElMessage.error("请输入任务名称");
-      return;
-    } else if (form.time == "") {
-      ElMessage.error("请选择时间");
-      return;
+  let now = new Date();
+  now.setMinutes(now.getMinutes() + 5);
+  const checkTime = (rule: any, value: string, cb: any) => {
+    if (Before(setDateByHoursAndMinutes(value), formatDate(new Date(), "YYYY-MM-DD HH:mm:ss"))) {
+      return cb(new Error("选择时间已经过去啦"));
     }
-    const taskStore = useTask();
-    taskStore.addTask({
-      title: form.name,
-      time: form.time,
+    cb();
+  };
+  const rules = reactive({
+    name: [{ required: true, message: "请输入任务名称", trigger: "change" }],
+    time: [
+      { required: true, message: "请选择时间", trigger: "change" },
+      {
+        validator: checkTime,
+        trigger: "change",
+      },
+    ],
+  });
+  const ruleForm = ref<FormInstance>();
+  const submit = (ruleForm: FormInstance | undefined) => {
+    if (!ruleForm) return;
+    ruleForm.validate((valid) => {
+      if (valid) {
+        const taskStore = useTask();
+        const res = taskStore.addTask({
+          title: form.name,
+          time: setDateByHoursAndMinutes(form.time),
+        });
+        if (res) {
+          _visible.value = false;
+        } else {
+          ElMessage.error("存在同名的任务");
+        }
+      }
     });
-    ElMessage.success("新建成功");
-    _visible.value = false;
+  };
+  const closeDialog = (ruleForm: FormInstance | undefined) => {
+    if (!ruleForm) return;
+    ruleForm.clearValidate();
   };
 </script>
 <style lang="less">
-  .el-dialog {
+  .task-add-dialog {
     min-width: 600px;
+    border-radius: 8px;
     .task-dialog-title {
       font-size: 12px;
       font-weight: 600;
+      color: #67c23a;
     }
     .task-com-dialog-con {
       width: 300px;

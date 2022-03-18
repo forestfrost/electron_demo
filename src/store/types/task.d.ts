@@ -1,6 +1,7 @@
 declare interface MyTaskItem {
   title: string;
   time: string;
+  status?: "wait" | "done";
 }
 import "pinia";
 

@@ -1,7 +1,10 @@
 <template>
   <div class="task-block">
     <div class="header">
-      <p class="title">待办事项</p>
+      <p class="title"
+        ><span :style="mode === 1 ? { color: '#67c23a' } : {}" @click="toggle(1)">待办事项</span> |
+        <span :style="mode === 2 ? { color: '#67c23a' } : {}" @click="toggle(2)">已办事项</span></p
+      >
       <div class="btn-block">
         <el-button type="success" circle @click="visible = true">
           <el-icon>
@@ -12,11 +15,12 @@
     </div>
     <div class="container" ref="container">
       <task-item
-        v-for="item in taskStore.taskList"
+        v-for="item in showList"
         @handle-commit="taskStore.doneTask(item)"
         @handle-cancel="taskStore.cancelTask(item)"
         :title="item.title"
         :time="item.time"
+        :status="item.status"
       ></task-item>
     </div>
 
@@ -33,16 +37,43 @@
   import addDialogVue from "./components/addDialog.vue";
   import { useTask } from "@/store/models/task";
   import { showBottom, useBottom, scrollThreeRow } from "@/hooks/bottom";
-  import { ref, Ref, watch, nextTick } from "vue";
+  import { ref, Ref, watch, nextTick, computed } from "vue";
+  import { doneTaskIPC } from "@/utils/useIPC";
+  import { MyTaskItem } from "@/store/types/task";
+  doneTaskIPC();
   const container: Ref<Element> = ref(null) as any;
   let visible = ref(false);
+  let mode = ref(0); // 当前查看的事项类型 1,待办 2,已办
   const { isBottom } = useBottom(container);
   const taskStore = useTask();
+  const taskList = computed(() => {
+    return taskStore.taskList;
+  });
+  const doneList = computed(() => {
+    return taskStore.doneList;
+  });
+  let showList: Ref<Array<MyTaskItem>> = ref([]);
+  const toggle = (modeTemp: number) => {
+    if (modeTemp === mode.value) return;
+    mode.value = modeTemp;
+    switch (modeTemp) {
+      case 1:
+        //待办事项
+        showList.value = taskList.value;
+        break;
+      case 2:
+        //已办事项
+        showList.value = doneList.value;
+        break;
+      default:
+        showList.value = [];
+    }
+  };
+  toggle(1);
   watch(
     taskStore.taskList,
     () => {
       nextTick(() => {
-        console.log(container.value.scrollHeight, container.value.clientHeight);
         showBottom(container);
       });
     },
@@ -64,6 +95,10 @@
       .title {
         font-size: 18px;
         font-weight: 600;
+        color: gray;
+        span {
+          cursor: pointer;
+        }
       }
     }
     .container {

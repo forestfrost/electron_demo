@@ -1,5 +1,4 @@
 "use strict";
-
 import {
   app,
   protocol,
@@ -9,22 +8,23 @@ import {
   Menu,
   IpcMain,
   ipcMain,
-  IpcMainEvent
+  IpcMainEvent,
+  screen,
 } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { resolve } from "path";
+import { getDiffBetweenDates } from "@/utils/common";
+import { MyTaskItem } from "./store/types/task";
+import { formatDate } from "@/utils/common";
 const isDevelopment = process.env.NODE_ENV !== "production";
-const iconPath = resolve(
-  "D:\\repo\\electron_demo\\public\\favicon.ico"
-);
+// const iconPath = resolve("D:\\vscode\\node\\electron_demo\\public\\favicon.ico");
+const iconPath = resolve(process.env.VUE_APP_ICON_PATH as string);
 let tray: Tray;
 let win: BrowserWindow;
+let remind: BrowserWindow;
 let ipc: IpcMain = ipcMain;
-// Scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([
-  { scheme: "app", privileges: { secure: true, standard: true } }
-]);
-//初始化窗口
+let timerList = new Map();
+//初始化主窗口
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
@@ -34,12 +34,10 @@ async function createWindow() {
     x: 0,
     y: 0,
     webPreferences: {
-      // Use pluginOptions.nodeIntegration, leave this alone
-      // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: process.env
-        .ELECTRON_NODE_INTEGRATION as unknown as boolean,
-      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
-    }
+      backgroundThrottling: false,
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
   });
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -48,10 +46,53 @@ async function createWindow() {
   } else {
     createProtocol("app");
     // Load the index.html when not in development
-    win.loadURL("app://./index.html");
+    win.loadURL(`file:/${__dirname}/index.html`);
   }
   // win.removeMenu();
   setTray();
+}
+async function createRemindWindow(task: MyTaskItem) {
+  remind = new BrowserWindow({
+    frame: false,
+    width: 320,
+    height: 380,
+    icon: iconPath,
+    resizable: false,
+    show: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
+  remind.removeMenu();
+  const size = screen.getPrimaryDisplay().workAreaSize;
+  const { y } = tray.getBounds();
+  const { width, height } = remind.getBounds();
+  const yPosition = process.platform === "darwin" ? y : y - height;
+  remind.setBounds({
+    x: size.width - width,
+    y: yPosition,
+    height,
+    width,
+  });
+  remind.setAlwaysOnTop(true);
+
+  if (process.env.WEBPACK_DEV_SERVER_URL) {
+    remind.loadURL(process.env.WEBPACK_DEV_SERVER_URL + "/remind.html");
+  } else {
+    createProtocol("app");
+    remind.loadURL(`app://./remind.html`);
+  }
+  remind.show();
+  remind.on("closed", () => {
+    remind = null as any;
+  });
+  setTimeout(() => {
+    remind && remind.close();
+  }, 50 * 1000);
+  remind.webContents.on("did-finish-load", () => {
+    remind.webContents.send("setTask", task);
+  });
 }
 //设置系统托盘
 function setTray() {
@@ -70,8 +111,8 @@ function setTray() {
         label: "Quit",
         click: () => {
           app.quit();
-        }
-      }
+        },
+      },
     ]);
     tray.popUpContextMenu(menuConfig);
   });
@@ -98,12 +139,6 @@ app.on("ready", async () => {
   createWindow();
 });
 
-app.whenReady().then(async () => {
-  session.defaultSession.loadExtension(
-    resolve("D:\\repo\\devtools\\packages\\shell-chrome")
-  );
-});
-
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === "win32") {
@@ -117,11 +152,23 @@ if (isDevelopment) {
       app.quit();
     });
   }
+  app.whenReady().then(async () => {
+    session.defaultSession.loadExtension(resolve(process.env.VUE_APP_EXTENSION_PATH as string));
+  });
 }
 
-ipc.on("setTask", (event: IpcMainEvent, payload) => {
-  console.log(payload);
+ipc.on("setTaskTimer", (event: IpcMainEvent, payload: MyTaskItem) => {
+  const today = formatDate(new Date(), "YYYY-MM-DD HH:mm:ss");
+  const diff = getDiffBetweenDates(today, payload.time);
+  const id = setTimeout(() => {
+    createRemindWindow(payload);
+    win.webContents.send("setTask", payload);
+  }, diff);
+  timerList.set(payload.title, id);
 });
-ipc.on("cancleTask", (event: IpcMainEvent, payload) => {
-  console.log(payload);
+ipc.on("cancelTask", (event: IpcMainEvent, payload) => {
+  console.log("cancel", payload);
+  if (timerList.has(payload.title)) {
+    clearTimeout(timerList.get(payload.title));
+  }
 });

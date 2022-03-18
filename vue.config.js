@@ -20,4 +20,19 @@ module.exports = defineConfig({
       }),
     ],
   },
+  publicPath: "./",
+  pages: {
+    main: {
+      entry: "src/main.ts",
+      template: "public/index.html",
+      filename: "index.html",
+      title: "工作台",
+    },
+    remind: {
+      entry: "src/remind.ts",
+      template: "public/remind.html",
+      filename: "remind.html",
+      title: "提示",
+    },
+  },
 });
