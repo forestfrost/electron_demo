@@ -22,7 +22,7 @@
           <el-time-select
             v-model="form.time"
             :start="formatDate(now, 'HH:mm')"
-            step="00:15"
+            step="00:05"
             end="22:30"
             placeholder="请选择"
           />

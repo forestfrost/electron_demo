@@ -5,7 +5,6 @@ export const useTask = defineStore({
   id: "task",
   state: () => {
     return {
-      count: 0,
       taskList: [],
       doneList: [],
     };

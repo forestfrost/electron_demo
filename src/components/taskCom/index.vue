@@ -102,7 +102,8 @@
       }
     }
     .container {
-      height: 260px;
+      height: auto;
+      max-height: 260px;
       overflow: auto;
       &::-webkit-scrollbar {
         width: 0px;

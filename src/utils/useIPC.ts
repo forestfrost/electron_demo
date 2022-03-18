@@ -9,6 +9,9 @@ export function setTaskTimer(payload: MyTaskItem) {
 export function cancelTaskTimer(payload: MyTaskItem) {
   ipcRenderer.send("cancelTask", payload);
 }
+export function closeRemindWin() {
+  ipcRenderer.send("close:remind");
+}
 export function setRemindMsg() {
   const remindMsg = ref({});
   ipcRenderer.on("setTask", (event, task: MyTaskItem) => {

@@ -1,7 +1,6 @@
 "use strict";
 import {
   app,
-  protocol,
   BrowserWindow,
   session,
   Tray,
@@ -16,6 +15,7 @@ import { resolve } from "path";
 import { getDiffBetweenDates } from "@/utils/common";
 import { MyTaskItem } from "./store/types/task";
 import { formatDate } from "@/utils/common";
+import { openBlock } from "vue";
 const isDevelopment = process.env.NODE_ENV !== "production";
 // const iconPath = resolve("D:\\vscode\\node\\electron_demo\\public\\favicon.ico");
 const iconPath = resolve(process.env.VUE_APP_ICON_PATH as string);
@@ -28,9 +28,12 @@ let timerList = new Map();
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    frame: false,
+    // frame: false,
+    // resizable:false,
     width: 1600,
     height: 1200,
+    // height:800,
+    // width:1200,
     x: 0,
     y: 0,
     webPreferences: {
@@ -46,7 +49,7 @@ async function createWindow() {
   } else {
     createProtocol("app");
     // Load the index.html when not in development
-    win.loadURL(`file:/${__dirname}/index.html`);
+    win.loadURL(`file://${__dirname}/index.html`);
   }
   // win.removeMenu();
   setTray();
@@ -159,11 +162,11 @@ if (isDevelopment) {
 
 ipc.on("setTaskTimer", (event: IpcMainEvent, payload: MyTaskItem) => {
   const today = formatDate(new Date(), "YYYY-MM-DD HH:mm:ss");
-  const diff = getDiffBetweenDates(today, payload.time);
+  const diff = getDiffBetweenDates(today, payload.time, "minute");
   const id = setTimeout(() => {
     createRemindWindow(payload);
     win.webContents.send("setTask", payload);
-  }, diff);
+  }, diff * 60 * 1000);
   timerList.set(payload.title, id);
 });
 ipc.on("cancelTask", (event: IpcMainEvent, payload) => {
@@ -171,4 +174,7 @@ ipc.on("cancelTask", (event: IpcMainEvent, payload) => {
   if (timerList.has(payload.title)) {
     clearTimeout(timerList.get(payload.title));
   }
+});
+ipc.on("close:remind", (event) => {
+  remind.close();
 });

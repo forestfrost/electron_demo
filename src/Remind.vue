@@ -8,6 +8,7 @@
       {{ wordList[index2] }}
     </p>
   </div>
+  <p class="close" @click="closeRemindWin">知道啦~</p>
   <div
     class="background"
     :style="{
@@ -21,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { setRemindMsg } from "@/utils/useIPC";
+  import { setRemindMsg, closeRemindWin } from "@/utils/useIPC";
   import { Ref } from "vue";
   import { MyTaskItem } from "./store/types/task";
   const remindMsg = setRemindMsg() as Ref<MyTaskItem>;
@@ -76,6 +77,16 @@
     animation-timing-function: linear;
     animation-duration: 5s;
     animation-iteration-count: infinite;
+  }
+  .close {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 12px;
+    color: #e4e7ed;
+    text-align: right;
+    z-index: 2;
+    cursor: pointer;
   }
   .background {
     position: fixed;
