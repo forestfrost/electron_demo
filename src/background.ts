@@ -15,7 +15,6 @@ import { resolve } from "path";
 import { getDiffBetweenDates } from "@/utils/common";
 import { MyTaskItem } from "./store/types/task";
 import { formatDate } from "@/utils/common";
-import { openBlock } from "vue";
 const isDevelopment = process.env.NODE_ENV !== "production";
 // const iconPath = resolve("D:\\vscode\\node\\electron_demo\\public\\favicon.ico");
 const iconPath = resolve(process.env.VUE_APP_ICON_PATH as string);
@@ -28,18 +27,16 @@ let timerList = new Map();
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    // frame: false,
+    frame: false,
     // resizable:false,
-    width: 1600,
-    height: 1200,
-    // height:800,
-    // width:1200,
-    x: 0,
-    y: 0,
+    width: 600,
+    height: 800,
+    minWidth: 600,
     webPreferences: {
       backgroundThrottling: false,
       nodeIntegration: true,
       contextIsolation: false,
+      webSecurity: false,
     },
   });
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -100,7 +97,7 @@ async function createRemindWindow(task: MyTaskItem) {
 //设置系统托盘
 function setTray() {
   tray = new Tray(iconPath);
-  tray.setToolTip("electron");
+  tray.setToolTip("工作台");
   tray.on("click", () => {
     if (win.isVisible()) {
       win.hide();
@@ -177,4 +174,15 @@ ipc.on("cancelTask", (event: IpcMainEvent, payload) => {
 });
 ipc.on("close:remind", (event) => {
   remind.close();
+});
+ipc.on("close:main", () => {
+  win.hide();
+});
+ipc.on("mini:main", () => {
+  win.minimize();
+});
+ipc.on("maxOrNot:main", () => {
+  const res = win.isMaximized();
+  console.log(res);
+  res ? win.unmaximize() : win.maximize();
 });

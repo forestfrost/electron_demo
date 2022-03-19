@@ -3,17 +3,18 @@
     <div class="flex-space-between">
       <p class="des"> {{ props.title }}</p>
       <p class="des">{{ time }}</p>
+      <p class="des">{{ props.remark }}</p>
     </div>
 
     <div class="flex-space-between">
-      <el-button v-if="props.status == 'wait'" circle type="primary" @click="commit">
+      <el-button v-if="props.status == 'wait'" size="small" circle type="primary" @click="commit">
         <template #icon>
           <el-icon>
             <check />
           </el-icon>
         </template>
       </el-button>
-      <el-button v-if="props.status == 'wait'" circle type="info" @click="cancel">
+      <el-button v-if="props.status == 'wait'" size="small" circle type="danger" @click="cancel">
         <template #icon>
           <el-icon>
             <close />
@@ -36,6 +37,9 @@
       required: true,
     },
     status: {
+      type: String,
+    },
+    remark: {
       type: String,
     },
   });
@@ -62,9 +66,9 @@
     justify-content: space-between;
     align-items: center;
     .des {
-      width: 160px;
-      margin-right: 26px;
-      font-size: 15px;
+      min-width: 100px;
+      margin-right: 16px;
+      font-size: 12px;
       color: gray;
     }
     .flex-space-between {

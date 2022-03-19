@@ -1,6 +1,12 @@
 import { defineStore } from "pinia";
 import { MyTaskItem } from "../types/task";
 import { setTaskTimer, cancelTaskTimer as _cancelTask } from "@/utils/useIPC";
+import { DatetoSeconds } from "@/utils/common";
+const resort = (taskList: Array<MyTaskItem>) => {
+  taskList.sort((a, b) => {
+    return DatetoSeconds(a.time) - DatetoSeconds(b.time);
+  });
+};
 export const useTask = defineStore({
   id: "task",
   state: () => {
@@ -19,6 +25,7 @@ export const useTask = defineStore({
         return false;
       }
       this.taskList.push({ ...payload, status: "wait" });
+      resort(this.taskList);
       setTaskTimer(payload);
       return true;
     },
@@ -27,6 +34,7 @@ export const useTask = defineStore({
       if (index !== -1) {
         this.taskList.splice(index, 1);
         this.doneList.push({ ...payload, status: "done" });
+        resort(this.doneList);
         _cancelTask({ ...payload });
       }
     },

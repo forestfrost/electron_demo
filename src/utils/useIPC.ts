@@ -12,6 +12,15 @@ export function cancelTaskTimer(payload: MyTaskItem) {
 export function closeRemindWin() {
   ipcRenderer.send("close:remind");
 }
+export function closeMainWin() {
+  ipcRenderer.send("close:main");
+}
+export function miniMainWin() {
+  ipcRenderer.send("mini:main");
+}
+export function maxOrNot() {
+  ipcRenderer.send("maxOrNot:main");
+}
 export function setRemindMsg() {
   const remindMsg = ref({});
   ipcRenderer.on("setTask", (event, task: MyTaskItem) => {

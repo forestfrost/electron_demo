@@ -23,6 +23,9 @@ export function formatDate(date: Date | string, type: string) {
 export function Before(date1: Date | string, date2: Date | string) {
   return dayjs(date1).isBefore(date2);
 }
+export function DatetoSeconds(date: string | Date) {
+  return dayjs(date).unix();
+}
 export function setDateByHoursAndMinutes(time: string) {
   const now = new Date();
   const temp = time.split(":").map((item) => Number(item));

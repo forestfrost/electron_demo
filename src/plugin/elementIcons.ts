@@ -10,9 +10,24 @@ import {
   Check,
   Close,
   AlarmClock,
+  Minus,
+  FullScreen,
+  CopyDocument,
 } from "@element-plus/icons-vue";
 
-const components = [ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Plus, Check, Close, AlarmClock];
+const components = [
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  Plus,
+  Check,
+  Close,
+  AlarmClock,
+  Minus,
+  FullScreen,
+  CopyDocument,
+];
 
 export default {
   install(app: any) {

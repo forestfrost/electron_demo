@@ -14,6 +14,7 @@ declare global {
   const ElForm: typeof import('element-plus/es')['ElForm']
   const ElFormItem: typeof import('element-plus/es')['ElFormItem']
   const ElIcon: typeof import('element-plus/es')['ElIcon']
+  const ElImage: typeof import('element-plus/es')['ElImage']
   const ElInput: typeof import('element-plus/es')['ElInput']
   const ElTimeSelect: typeof import('element-plus/es')['ElTimeSelect']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']

@@ -12,20 +12,24 @@
         <el-form-item prop="name" label="名称">
           <el-input
             v-model.trim="form.name"
+            type="text"
             clearable
             placeholder="请输入"
-            maxLength="30"
-            :show-word-limit="true"
+            maxlength="10"
+            show-word-limit
           ></el-input>
         </el-form-item>
         <el-form-item prop="time" label="时间">
           <el-time-select
             v-model="form.time"
             :start="formatDate(now, 'HH:mm')"
-            step="00:05"
+            step="00:01"
             end="22:30"
             placeholder="请选择"
           />
+        </el-form-item>
+        <el-form-item prop="remark" label="备注" class="special-label-for-task-add">
+          <el-input v-model="form.remark" type="text" placeholder="请输入" clearable></el-input>
         </el-form-item>
       </el-form>
     </div>
@@ -61,6 +65,7 @@
   let form = reactive({
     name: "",
     time: "",
+    remark: "",
   });
   let now = new Date();
   now.setMinutes(now.getMinutes() + 5);
@@ -79,6 +84,13 @@
         trigger: "change",
       },
     ],
+    remark: [
+      {
+        max: 20,
+        message: "最多20个字符",
+        trigger: "change",
+      },
+    ],
   });
   const ruleForm = ref<FormInstance>();
   const submit = (ruleForm: FormInstance | undefined) => {
@@ -89,6 +101,7 @@
         const res = taskStore.addTask({
           title: form.name,
           time: setDateByHoursAndMinutes(form.time),
+          remark: form.remark,
         });
         if (res) {
           _visible.value = false;
@@ -105,7 +118,7 @@
 </script>
 <style lang="less">
   .task-add-dialog {
-    min-width: 600px;
+    min-width: 400px;
     border-radius: 8px;
     .task-dialog-title {
       font-size: 12px;
@@ -115,17 +128,13 @@
     .task-com-dialog-con {
       width: 300px;
       margin: 0 auto;
-      .row {
-        margin: 16px auto;
-        display: flex;
-        align-items: center;
-      }
-      .label {
-        color: gray;
-        font-size: 12px;
+      .special-label-for-task-add {
+        .el-form-item__label {
+          margin-left: 10px;
+        }
       }
       .el-input {
-        width: 200px;
+        width: 220px;
       }
     }
   }

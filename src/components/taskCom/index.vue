@@ -1,12 +1,12 @@
 <template>
-  <div class="task-block">
+  <div class="task-block block">
     <div class="header">
       <p class="title"
         ><span :style="mode === 1 ? { color: '#67c23a' } : {}" @click="toggle(1)">待办事项</span> |
         <span :style="mode === 2 ? { color: '#67c23a' } : {}" @click="toggle(2)">已办事项</span></p
       >
       <div class="btn-block">
-        <el-button type="success" circle @click="visible = true">
+        <el-button type="success" size="small" circle @click="visible = true">
           <el-icon>
             <plus />
           </el-icon>
@@ -21,7 +21,12 @@
         :title="item.title"
         :time="item.time"
         :status="item.status"
+        :remark="item.remark"
       ></task-item>
+      <template v-if="!showList.length">
+        <div v-if="mode === 1" class="empty"> 现在没有待办的事情哟,休息一下吧... </div>
+        <div v-else-if="mode === 2" class="empty">现在没有已办的事情哟,快动起来吧...</div>
+      </template>
     </div>
 
     <el-icon v-show="isBottom" @click="scrollThreeRow(container)" class="icon">
@@ -71,7 +76,7 @@
   };
   toggle(1);
   watch(
-    taskStore.taskList,
+    showList,
     () => {
       nextTick(() => {
         showBottom(container);
@@ -84,16 +89,11 @@
 </script>
 <style lang="less" scoped>
   .task-block {
-    position: relative;
-    box-sizing: border-box;
-    width: 90%;
-    padding: 10px;
-    box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.1);
     .header {
       display: flex;
       justify-content: space-between;
       .title {
-        font-size: 18px;
+        font-size: 13px;
         font-weight: 600;
         color: gray;
         span {
@@ -102,14 +102,22 @@
       }
     }
     .container {
-      height: auto;
-      max-height: 260px;
+      height: 260px;
       overflow: auto;
       &::-webkit-scrollbar {
         width: 0px;
         height: 0px;
       }
+      .empty {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 12px;
+        color: #909399;
+      }
     }
+
     .icon {
       position: absolute;
       background-color: #fff;

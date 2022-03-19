@@ -2,6 +2,7 @@ import { ref, Ref, onMounted } from "vue";
 import { throttle } from "@/utils/common";
 let isBottom = ref(false);
 const showBottom = (container: Ref<Element>) => {
+  if (!container.value) return;
   if (container.value.scrollHeight > container.value.clientHeight) {
     isBottom.value = true;
   } else {
