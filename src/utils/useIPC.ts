@@ -1,6 +1,6 @@
 import { MyTaskItem } from "@/store/types/task";
 import { useTask } from "@/store/models/task";
-import { Ref } from "vue";
+import { ref } from "vue";
 const electron = window.require("electron");
 const { ipcRenderer } = electron;
 export function setTaskTimer(payload: MyTaskItem) {

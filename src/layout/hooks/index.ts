@@ -1,4 +1,5 @@
 import { sendMouseStatus } from "@/utils/useIPC";
+import { ref } from "vue";
 export const useMouse = () => {
   const status = ref("LEAVE");
   const mouseEnter = () => {

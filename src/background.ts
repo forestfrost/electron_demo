@@ -9,6 +9,7 @@ import {
   ipcMain,
   IpcMainEvent,
   screen,
+  Notification,
 } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { resolve } from "path";
@@ -30,7 +31,7 @@ async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
     frame: false,
-    // resizable:false,
+    resizable: false,
     width: 600,
     height: 800,
     minWidth: 600,
@@ -91,6 +92,7 @@ async function createRemindWindow(task: MyTaskItem) {
   remind.on("closed", () => {
     remind = null as any;
   });
+  showNotification("快动起来吧", task.title, task.remark);
   setTimeout(() => {
     remind && remind.close();
   }, 50 * 1000);
@@ -236,7 +238,15 @@ function attachHide(window: BrowserWindow, cb: Function) {
 function cancelAttachHide(window: BrowserWindow, cb: Function) {
   window.removeListener("moved", cb);
 }
-
+function showNotification(title: string, body?: string, subtitle?: string) {
+  new Notification({
+    title,
+    body,
+    subtitle,
+    icon: iconPath,
+    silent: false,
+  }).show();
+}
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
   // On macOS it is common for applications and their menu bar
@@ -274,6 +284,7 @@ if (isDevelopment) {
   }
   app.whenReady().then(async () => {
     session.defaultSession.loadExtension(resolve(process.env.VUE_APP_EXTENSION_PATH as string));
+    showNotification("提示", "工作台已经启动啦");
   });
 }
 
