@@ -10,6 +10,17 @@ export function throttle(fn: Function, delay: number) {
     }, delay);
   };
 }
+export function debounce(fn: Function, delay: number) {
+  let timer: NodeJS.Timeout;
+  return () => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn(...arguments);
+    }, delay);
+  };
+}
 export function getDiffBetweenDates(
   start: string,
   end: string,

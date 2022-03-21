@@ -12,7 +12,7 @@ import {
 } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { resolve } from "path";
-import { getDiffBetweenDates } from "@/utils/common";
+import { getDiffBetweenDates, debounce } from "@/utils/common";
 import { MyTaskItem } from "./store/types/task";
 import { formatDate } from "@/utils/common";
 const isDevelopment = process.env.NODE_ENV !== "production";
@@ -23,6 +23,8 @@ let win: BrowserWindow;
 let remind: BrowserWindow;
 let ipc: IpcMain = ipcMain;
 let timerList = new Map();
+let windowStatus: "show" | "hide:top" | "hide:left" | "hide:right" = "show";
+const Bert = 6;
 //初始化主窗口
 async function createWindow() {
   // Create the browser window.
@@ -49,8 +51,10 @@ async function createWindow() {
     win.loadURL(`file://${__dirname}/index.html`);
   }
   // win.removeMenu();
+  attachHide(win, attach);
   setTray();
 }
+//创建定时任务提醒窗体
 async function createRemindWindow(task: MyTaskItem) {
   remind = new BrowserWindow({
     frame: false,
@@ -94,7 +98,7 @@ async function createRemindWindow(task: MyTaskItem) {
     remind.webContents.send("setTask", task);
   });
 }
-//设置系统托盘
+//设置系统托盘(为主窗口(win)设置)
 function setTray() {
   tray = new Tray(iconPath);
   tray.setToolTip("工作台");
@@ -117,6 +121,122 @@ function setTray() {
     tray.popUpContextMenu(menuConfig);
   });
 }
+function attach(window: BrowserWindow) {
+  //获取当前窗口左上角的位置坐标
+  const [x, y] = window.getPosition();
+  const { width, height } = window.getBounds();
+  const { width: clientWidth, height: clientHeight } = screen.getPrimaryDisplay().bounds;
+  let distance;
+  if (windowStatus === "show") {
+    if (y <= 5 && !window.isFullScreen()) {
+      distance = y + height - Bert;
+      aninateForHideOrShow("top", distance);
+    } else if (x <= 5) {
+      distance = x + width - Bert;
+      aninateForHideOrShow("left", distance);
+    } else if (x > clientWidth - width - 5) {
+      distance = clientWidth - x - Bert;
+      aninateForHideOrShow("right", distance);
+    }
+  } else if (windowStatus === "hide:left") {
+    distance = width - Bert;
+    aninateForHideOrShow("right-show", distance);
+  } else if (windowStatus === "hide:right") {
+    distance = width - Bert;
+    aninateForHideOrShow("left-show", distance);
+  } else {
+    distance = height - Bert;
+    aninateForHideOrShow("bottom", distance);
+  }
+}
+function aninateForHideOrShow(
+  direction: "top" | "bottom" | "left" | "right" | "left-show" | "right-show",
+  distance: number,
+) {
+  let [x, y] = win.getPosition();
+  let timer: NodeJS.Timer;
+  const distancePerFrame = 100;
+  switch (direction) {
+    case "top":
+      timer = setInterval(() => {
+        if (distance > distancePerFrame) {
+          win.setPosition(x, y - distancePerFrame);
+          distance -= distancePerFrame;
+          y -= distancePerFrame;
+          if (distance == 0) {
+            windowStatus = "hide:top";
+          }
+        } else {
+          win.setPosition(x, y - distance);
+          clearInterval(timer);
+          windowStatus = "hide:top";
+        }
+      }, 16);
+
+      break;
+    case "right":
+    case "right-show":
+      timer = setInterval(() => {
+        if (distance > distancePerFrame) {
+          win.setPosition(x + distancePerFrame, y);
+          distance -= distancePerFrame;
+          x += distancePerFrame;
+          if (distance == 0) {
+            windowStatus = direction == "right" ? "hide:right" : "show";
+          }
+        } else {
+          win.setPosition(x + distance, y);
+          clearInterval(timer);
+          windowStatus = direction == "right" ? "hide:right" : "show";
+        }
+      }, 16);
+      break;
+    case "bottom":
+      timer = setInterval(() => {
+        if (distance > distancePerFrame) {
+          win.setPosition(x, y + distancePerFrame);
+          distance -= distancePerFrame;
+          y += distancePerFrame;
+          if (distance == 0) {
+            windowStatus = "show";
+          }
+        } else {
+          win.setPosition(x, y + distance);
+          clearInterval(timer);
+          windowStatus = "show";
+        }
+      }, 16);
+      break;
+    case "left":
+    case "left-show":
+      timer = setInterval(() => {
+        if (distance > distancePerFrame) {
+          win.setPosition(x - distancePerFrame, y);
+          distance -= distancePerFrame;
+          x -= distancePerFrame;
+          if (distance == 0) {
+            windowStatus = direction == "left" ? "hide:left" : "show";
+          }
+        } else {
+          win.setPosition(x - distance, y);
+          clearInterval(timer);
+          windowStatus = direction == "left" ? "hide:left" : "show";
+        }
+      }, 16);
+      break;
+  }
+}
+
+//设置窗口的边缘贴附
+function attachHide(window: BrowserWindow, cb: Function) {
+  window.addListener("moved", () => {
+    cb(window);
+  });
+}
+function cancelAttachHide(window: BrowserWindow, cb: Function) {
+  window.removeListener("moved", cb);
+}
+
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
   // On macOS it is common for applications and their menu bar
@@ -183,6 +303,20 @@ ipc.on("mini:main", () => {
 });
 ipc.on("maxOrNot:main", () => {
   const res = win.isMaximized();
-  console.log(res);
   res ? win.unmaximize() : win.maximize();
+});
+ipc.on("mouseStatus", (event: IpcMainEvent, payload: string, DomEvent: any) => {
+  const { width: clientWidth } = screen.getPrimaryDisplay().bounds;
+  if (payload !== "LEAVE" && windowStatus !== "show") {
+    attach(win);
+  } else if (
+    payload === "LEAVE" &&
+    windowStatus == "show" &&
+    DomEvent.screenX >= Bert &&
+    DomEvent.screenY > 29 &&
+    DomEvent.clientY > 29 &&
+    DomEvent.screenX < clientWidth - Bert
+  ) {
+    attach(win);
+  }
 });

@@ -2,7 +2,10 @@
   <div class="task-block block">
     <div class="header">
       <p class="title"
-        ><span :style="mode === 1 ? { color: '#67c23a' } : {}" @click="toggle(1)">待办事项</span> |
+        ><el-icon :size="15" color="#E6A23C" style="top: 2px; margin-right: 3px">
+          <alarm-clock />
+        </el-icon>
+        <span :style="mode === 1 ? { color: '#67c23a' } : {}" @click="toggle(1)">待办事项</span> |
         <span :style="mode === 2 ? { color: '#67c23a' } : {}" @click="toggle(2)">已办事项</span></p
       >
       <div class="btn-block">
@@ -14,19 +17,26 @@
       </div>
     </div>
     <div class="container" ref="container">
-      <task-item
-        v-for="item in showList"
-        @handle-commit="taskStore.doneTask(item)"
-        @handle-cancel="taskStore.cancelTask(item)"
-        :title="item.title"
-        :time="item.time"
-        :status="item.status"
-        :remark="item.remark"
-      ></task-item>
-      <template v-if="!showList.length">
-        <div v-if="mode === 1" class="empty"> 现在没有待办的事情哟,休息一下吧... </div>
-        <div v-else-if="mode === 2" class="empty">现在没有已办的事情哟,快动起来吧...</div>
-      </template>
+      <transition-group name="list">
+        <task-item
+          v-for="item in showList"
+          @handle-commit="taskStore.doneTask(item)"
+          @handle-cancel="taskStore.cancelTask(item)"
+          :title="item.title"
+          :time="item.time"
+          :status="item.status"
+          :remark="item.remark"
+          :key="item.title + item.time + item.status"
+        ></task-item>
+        <template v-if="!showList.length">
+          <div v-if="mode === 1" class="empty" key="tem_empty_task_block_list_1">
+            现在没有待办的事情哟,休息一下吧...
+          </div>
+          <div v-else-if="mode === 2" class="empty" key="tem_empty_task_block_list_2"
+            >现在没有已办的事情哟,快动起来吧...</div
+          >
+        </template>
+      </transition-group>
     </div>
 
     <el-icon v-show="isBottom" @click="scrollThreeRow(container)" class="icon">
@@ -94,6 +104,7 @@
       justify-content: space-between;
       .title {
         font-size: 13px;
+        line-height: 24px;
         font-weight: 600;
         color: gray;
         span {
@@ -128,6 +139,19 @@
       transform: translateX(-50%);
       border-top: 1px solid rgba(0, 0, 0, 0.1);
       cursor: pointer;
+    }
+
+    .list-enter-active {
+      transition: all 0.5s ease;
+    }
+
+    .list-enter-from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    .list-leave-to {
+      opacity: 1;
+      transform: translateX(-30px);
     }
   }
 </style>

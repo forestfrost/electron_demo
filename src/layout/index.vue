@@ -1,5 +1,5 @@
 <template>
-  <div class="header">
+  <div class="header drag">
     <div class="lt">
       <el-image :src="avator" style="width: 16px; padding: 3px" />
       <p class="title">工作台</p>
@@ -17,7 +17,7 @@
       </div>
     </div>
   </div>
-  <div class="layout">
+  <div class="layout" @mouseenter="mouseEnter" @mouseleave="mouseLeave">
     <div class="row">
       <Task></Task>
     </div>
@@ -32,8 +32,9 @@
   import Note from "@/components/noteCom/index.vue";
   import avator from "@/assets/yjtp.png";
   import { closeMainWin, miniMainWin, maxOrNot } from "@/utils/useIPC";
-
+  import { useMouse } from "./hooks/index";
   const isMaximized = ref(false);
+  let { mouseEnter, mouseLeave } = useMouse();
   const _maxOrNot = () => {
     isMaximized.value = !isMaximized.value;
     maxOrNot();
@@ -41,8 +42,10 @@
 </script>
 
 <style lang="less" scoped>
-  .header {
+  .drag {
     -webkit-app-region: drag;
+  }
+  .header {
     display: flex;
     justify-content: space-between;
     height: 29px;

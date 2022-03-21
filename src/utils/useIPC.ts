@@ -18,6 +18,9 @@ export function closeMainWin() {
 export function miniMainWin() {
   ipcRenderer.send("mini:main");
 }
+export function sendMouseStatus(payload: string, event?: any) {
+  ipcRenderer.send("mouseStatus", payload, event);
+}
 export function maxOrNot() {
   ipcRenderer.send("maxOrNot:main");
 }

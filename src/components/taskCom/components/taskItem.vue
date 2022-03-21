@@ -6,15 +6,15 @@
       <p class="des">{{ props.remark }}</p>
     </div>
 
-    <div class="flex-space-between">
-      <el-button v-if="props.status == 'wait'" size="small" circle type="primary" @click="commit">
+    <div v-if="props.status == 'wait'" class="flex-space-between">
+      <el-button size="small" circle type="primary" @click="commit">
         <template #icon>
           <el-icon>
             <check />
           </el-icon>
         </template>
       </el-button>
-      <el-button v-if="props.status == 'wait'" size="small" circle type="danger" @click="cancel">
+      <el-button size="small" circle type="danger" @click="cancel">
         <template #icon>
           <el-icon>
             <close />
@@ -75,6 +75,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+    &:hover {
+      box-shadow: 0 1px rgb(0 0 0 / 10%);
     }
   }
 </style>
