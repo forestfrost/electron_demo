@@ -38,7 +38,6 @@
         </template>
       </transition-group>
     </div>
-
     <el-icon v-show="isBottom" @click="scrollThreeRow(container)" class="icon">
       <arrow-down />
     </el-icon>
@@ -139,19 +138,6 @@
       transform: translateX(-50%);
       border-top: 1px solid rgba(0, 0, 0, 0.1);
       cursor: pointer;
-    }
-
-    .list-enter-active {
-      transition: all 0.5s ease;
-    }
-
-    .list-enter-from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    .list-leave-to {
-      opacity: 1;
-      transform: translateX(-30px);
     }
   }
 </style>

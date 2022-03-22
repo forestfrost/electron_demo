@@ -19,7 +19,8 @@
     "node-schedule": "^2.1.0",
     "pinia": "^2.0.12",
     "vue": "^3.2.13",
-    "vue-router": "^4.0.3"
+    "vue-router": "^4.0.3",
+    "wangeditor": "^4.7.12"
   },
   "devDependencies": {
     "@element-plus/icons-vue": "^1.1.3",

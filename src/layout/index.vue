@@ -17,7 +17,7 @@
       </div>
     </div>
   </div>
-  <div class="layout" @mouseenter="mouseEnter" @mouseleave="mouseLeave">
+  <div class="layout">
     <div class="row">
       <Task></Task>
     </div>
@@ -39,6 +39,14 @@
     isMaximized.value = !isMaximized.value;
     maxOrNot();
   };
+  onMounted(() => {
+    document.body.addEventListener("mouseenter", mouseEnter);
+    document.body.addEventListener("mouseleave", mouseLeave);
+  });
+  onBeforeUnmount(() => {
+    document.body.removeEventListener("mouseenter", mouseEnter);
+    document.body.removeEventListener("mouseleave", mouseLeave);
+  });
 </script>
 
 <style lang="less" scoped>

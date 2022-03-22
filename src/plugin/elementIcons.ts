@@ -13,6 +13,12 @@ import {
   Minus,
   FullScreen,
   CopyDocument,
+  Document,
+  Lock,
+  Clock,
+  Edit,
+  Delete,
+  Key,
 } from "@element-plus/icons-vue";
 
 const components = [
@@ -27,6 +33,12 @@ const components = [
   Minus,
   FullScreen,
   CopyDocument,
+  Document,
+  Lock,
+  Clock,
+  Edit,
+  Delete,
+  Key,
 ];
 
 export default {

@@ -1,12 +1,16 @@
 <template>
-  <div class="task-item">
+  <div class="task-item flex-space-between" @mouseenter="enter" @mouseleave="leave">
     <div class="flex-space-between">
       <p class="des"> {{ props.title }}</p>
-      <p class="des">{{ time }}</p>
+      <p class="des special-des">{{ time }}</p>
       <p class="des">{{ props.remark }}</p>
     </div>
 
-    <div v-if="props.status == 'wait'" class="flex-space-between">
+    <div
+      v-if="props.status == 'wait'"
+      class="rt"
+      :style="{ transform: `translateX(${distance}px)` }"
+    >
       <el-button size="small" circle type="primary" @click="commit">
         <template #icon>
           <el-icon>
@@ -57,27 +61,38 @@
       return props.time;
     }
   });
+
+  const distance = ref(100);
+  const enter = () => {
+    distance.value = 0;
+  };
+  const leave = () => {
+    distance.value = 100;
+  };
 </script>
 <style lang="less" scoped>
   .task-item {
     width: 100%;
     height: 50px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     .des {
-      min-width: 100px;
+      min-width: 120px;
       margin-right: 16px;
       font-size: 12px;
       color: gray;
     }
-    .flex-space-between {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .special-des {
+      min-width: 50px;
     }
     &:hover {
       box-shadow: 0 1px rgb(0 0 0 / 10%);
     }
+  }
+  .flex-space-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .rt {
+    transition: 0.6s;
   }
 </style>
