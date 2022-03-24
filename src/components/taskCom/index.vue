@@ -2,13 +2,20 @@
   <div class="task-block block">
     <div class="header">
       <p class="title"
-        ><el-icon :size="15" color="#E6A23C" style="top: 2px; margin-right: 3px">
+        ><el-icon :size="15" color="#E6A23C" class="title-icon">
           <alarm-clock />
         </el-icon>
         <span :style="mode === 1 ? { color: '#67c23a' } : {}" @click="toggle(1)">待办事项</span> |
-        <span :style="mode === 2 ? { color: '#67c23a' } : {}" @click="toggle(2)">已办事项</span></p
-      >
-      <div class="btn-block">
+        <span :style="mode === 2 ? { color: '#67c23a' } : {}" @click="toggle(2)">已办事项</span>
+        <el-icon
+          :size="15"
+          :class="['title-icon', 'pointer', !comOpen ? 'rorate' : '']"
+          @click="openOrClose"
+        >
+          <arrow-down />
+        </el-icon>
+      </p>
+      <div>
         <el-button type="success" size="small" circle @click="visible = true">
           <el-icon>
             <plus />
@@ -16,7 +23,7 @@
         </el-button>
       </div>
     </div>
-    <div class="container" ref="container">
+    <div class="container" ref="container" :class="[conClass, comOpen ? 'h-260' : 'h-0']">
       <transition-group name="list">
         <task-item
           v-for="item in showList"
@@ -38,7 +45,7 @@
         </template>
       </transition-group>
     </div>
-    <el-icon v-show="isBottom" @click="scrollThreeRow(container)" class="icon">
+    <el-icon v-show="isBottom && comOpen" @click="scrollThreeRow(container)" class="icon">
       <arrow-down />
     </el-icon>
 
@@ -51,6 +58,7 @@
   import addDialogVue from "./components/addDialog.vue";
   import { useTask } from "@/store/models/task";
   import { showBottom, useBottom, scrollThreeRow } from "@/hooks/bottom";
+  import { watchComOpen } from "@/hooks/openOrClose";
   import { ref, Ref, watch, nextTick, computed } from "vue";
   import { doneTaskIPC } from "@/utils/useIPC";
   import { MyTaskItem } from "@/store/types/task";
@@ -58,7 +66,8 @@
   const container: Ref<Element> = ref(null) as any;
   let visible = ref(false);
   let mode = ref(0); // 当前查看的事项类型 1,待办 2,已办
-  const { isBottom } = useBottom(container);
+  const isBottom = ref(false);
+  useBottom(container, isBottom);
   const taskStore = useTask();
   const taskList = computed(() => {
     return taskStore.taskList;
@@ -88,13 +97,19 @@
     showList,
     () => {
       nextTick(() => {
-        showBottom(container);
+        showBottom(container, isBottom);
       });
     },
     {
       deep: true,
     },
   );
+  const comOpen = ref(true);
+  const openOrClose = () => {
+    comOpen.value = !comOpen.value;
+  };
+  const conClass = ref("");
+  watchComOpen(comOpen, conClass);
 </script>
 <style lang="less" scoped>
   .task-block {
@@ -109,10 +124,22 @@
         span {
           cursor: pointer;
         }
+        .title-icon {
+          top: 2px;
+          margin-right: 3px;
+        }
+        .pointer {
+          margin-left: 3px;
+          cursor: pointer;
+          transition: 0.3s;
+        }
+        .rorate {
+          transform: rotateZ(-90deg);
+        }
       }
     }
     .container {
-      height: 260px;
+      // height: 260px;
       overflow: auto;
       &::-webkit-scrollbar {
         width: 0px;

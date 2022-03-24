@@ -1,5 +1,5 @@
 import { sendMouseStatus } from "@/utils/useIPC";
-import { ref } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 export const useMouse = () => {
   const status = ref("LEAVE");
   const mouseEnter = () => {
@@ -16,8 +16,12 @@ export const useMouse = () => {
       clientY: event.clientY,
     });
   };
-  return {
-    mouseEnter,
-    mouseLeave,
-  };
+  onMounted(() => {
+    document.body.addEventListener("mouseenter", mouseEnter);
+    document.body.addEventListener("mouseleave", mouseLeave);
+  });
+  onBeforeUnmount(() => {
+    document.body.removeEventListener("mouseenter", mouseEnter);
+    document.body.removeEventListener("mouseleave", mouseLeave);
+  });
 };

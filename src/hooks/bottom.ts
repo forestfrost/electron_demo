@@ -1,7 +1,6 @@
-import { ref, Ref, onMounted } from "vue";
+import { Ref, onMounted } from "vue";
 import { throttle } from "@/utils/common";
-let isBottom = ref(false);
-const showBottom = (container: Ref<Element>) => {
+const showBottom = (container: Ref<Element>, isBottom: Ref<boolean>) => {
   if (!container.value) return;
   if (container.value.scrollHeight > container.value.clientHeight) {
     isBottom.value = true;
@@ -12,21 +11,15 @@ const showBottom = (container: Ref<Element>) => {
 const scrollThreeRow = (container: Element) => {
   container.scrollTo({ top: container.scrollTop + 150, behavior: "smooth" });
 };
-const useBottom = (container: Ref<Element>) => {
+const useBottom = (container: Ref<Element>, isBottom: Ref<boolean>) => {
   onMounted(() => {
-    showBottom(container);
-    container.value.addEventListener(
-      "scroll",
-      throttle(() => {
-        container.value.scrollTop + container.value.clientHeight <=
-        container.value.scrollHeight - 10
-          ? (isBottom.value = true)
-          : (isBottom.value = false);
-      }, 150),
-    );
+    showBottom(container, isBottom);
+    const cb = () => {
+      container.value.scrollTop + container.value.clientHeight <= container.value.scrollHeight - 10
+        ? (isBottom.value = true)
+        : (isBottom.value = false);
+    };
+    container.value.addEventListener("scroll", throttle(cb, 150));
   });
-  return {
-    isBottom,
-  };
 };
 export { useBottom, showBottom, scrollThreeRow };

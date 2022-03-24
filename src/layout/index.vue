@@ -24,6 +24,13 @@
     <div class="row">
       <Note></Note>
     </div>
+    <div class="row">
+      <el-button circle size="small" type="success" @click="test">
+        <el-icon>
+          <plus />
+        </el-icon>
+      </el-button>
+    </div>
   </div>
 </template>
 
@@ -34,19 +41,12 @@
   import { closeMainWin, miniMainWin, maxOrNot } from "@/utils/useIPC";
   import { useMouse } from "./hooks/index";
   const isMaximized = ref(false);
-  let { mouseEnter, mouseLeave } = useMouse();
+  useMouse();
   const _maxOrNot = () => {
     isMaximized.value = !isMaximized.value;
     maxOrNot();
   };
-  onMounted(() => {
-    document.body.addEventListener("mouseenter", mouseEnter);
-    document.body.addEventListener("mouseleave", mouseLeave);
-  });
-  onBeforeUnmount(() => {
-    document.body.removeEventListener("mouseenter", mouseEnter);
-    document.body.removeEventListener("mouseleave", mouseLeave);
-  });
+  const test = () => {};
 </script>
 
 <style lang="less" scoped>
@@ -90,7 +90,7 @@
     align-items: center;
     .row {
       width: 100%;
-      margin: 32px auto;
+      margin: 12px auto;
     }
     overflow: auto;
     &::-webkit-scrollbar {

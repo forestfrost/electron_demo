@@ -1,8 +1,7 @@
 declare interface MyTagItem {
   name: string; //maxlen:5
   createTime: string;
-  updateTime: string;
-  status: "success" | "danger" | "warning" | "deleted";
+  status: "success" | "danger" | "warning";
 }
 declare interface MyNoteItem {
   title: string; //maxlen:15

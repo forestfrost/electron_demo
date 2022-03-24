@@ -1,0 +1,32 @@
+@keyframes animate-open {
+  0% {
+    height: 0;
+  }
+  100% {
+    height: 260px;
+  }
+}
+@keyframes animate-close {
+  0% {
+    height: 260px;
+  }
+  100% {
+    height: 0;
+  }
+}
+.open {
+  animation-name: animate-open;
+  animation-duration: 0.3s;
+  animation-timing-function: linear;
+}
+.close {
+  animation-name: animate-close;
+  animation-duration: 0.3s;
+  animation-timing-function: linear;
+}
+.h-260 {
+  height: 260px;
+}
+.h-0 {
+  height: 0;
+}

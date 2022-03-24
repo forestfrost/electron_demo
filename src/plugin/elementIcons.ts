@@ -19,6 +19,7 @@ import {
   Edit,
   Delete,
   Key,
+  PriceTag,
 } from "@element-plus/icons-vue";
 
 const components = [
@@ -39,6 +40,7 @@ const components = [
   Edit,
   Delete,
   Key,
+  PriceTag,
 ];
 
 export default {

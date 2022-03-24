@@ -5,6 +5,7 @@
     width="30%"
     center
     custom-class="task-add-dialog"
+    append-to-body
     @close="closeDialog(ruleForm)"
   >
     <div class="task-com-dialog-con">
@@ -23,7 +24,7 @@
           <el-time-select
             v-model="form.time"
             :start="formatDate(now, 'HH:mm')"
-            step="00:01"
+            step="00:20"
             end="22:30"
             placeholder="请选择"
           />
@@ -68,7 +69,8 @@
     remark: "",
   });
   let now = new Date();
-  now.setMinutes(now.getMinutes() + 5);
+  const minutes = now.getMinutes();
+  now.setMinutes(minutes % 5 ? minutes + 5 : minutes + 5 - (minutes % 5));
   const checkTime = (rule: any, value: string, cb: any) => {
     if (Before(setDateByHoursAndMinutes(value), formatDate(new Date(), "YYYY-MM-DD HH:mm:ss"))) {
       return cb(new Error("选择时间已经过去啦"));

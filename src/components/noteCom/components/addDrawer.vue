@@ -147,9 +147,6 @@
       text-align: center;
       color: #67c23a;
     }
-    .container {
-      margin: 30px 0 0 0;
-    }
     .tags-block {
       margin: 12px 0;
       .tag {

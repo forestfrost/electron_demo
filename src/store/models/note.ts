@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
-import { MyNoteItem } from "../types/note";
+import { MyNoteItem, MyTagItem } from "../types/note";
 import { DatetoSeconds } from "@/utils/common";
+//置顶功能重排序
 const resort = (array: Array<MyNoteItem>) => {
   let temp: Array<MyNoteItem> = [];
   for (let i = array.length - 1; i >= 0; i--) {
@@ -24,19 +25,16 @@ export const useNote = defineStore({
         {
           name: "测试",
           createTime: "2022-03-22 09:38:16",
-          updateTime: "2022-03-22 09:38:16",
           status: "success",
         },
         {
           name: "活动",
           createTime: "2022-03-22 09:38:16",
-          updateTime: "2022-03-22 09:38:16",
           status: "danger",
         },
         {
           name: "知识",
           createTime: "2022-03-22 09:38:16",
-          updateTime: "2022-03-22 09:38:16",
           status: "warning",
         },
       ],
@@ -49,7 +47,6 @@ export const useNote = defineStore({
             {
               name: "测试",
               createTime: "2022-03-22 09:38:16",
-              updateTime: "2022-03-22 09:38:16",
               status: "success",
             },
           ],
@@ -66,7 +63,7 @@ export const useNote = defineStore({
     },
   },
   actions: {
-    //增加日志录
+    //增加或修改日志录
     addNote(payload: MyNoteItem, add: boolean = true) {
       const index = this.noteList.findIndex((item: MyNoteItem) => {
         return item.title === payload.title && item.status !== "deleted";
@@ -85,10 +82,20 @@ export const useNote = defineStore({
       resort(this.noteList);
       return true;
     },
+    //操作日志录的状态
     operateNoteStatus(payload: MyNoteItem, status: "lock" | "normal" | "deleted" | "important") {
       const index = this.noteList.findIndex((item: MyNoteItem) => item.title === payload.title);
       if (index == -1) return;
       this.noteList[index].status = status;
+    },
+    //新增标签
+    addTag(payload: MyTagItem) {
+      const index = this.tagList.findIndex((item) => item.name == payload.name);
+      if (index !== -1) {
+        return false;
+      }
+      this.tagList.push(payload);
+      return true;
     },
   },
 });
