@@ -1,8 +1,11 @@
 declare interface MyTaskItem {
   title: string;
-  time: string;
+  time: Date;
   remark?: string;
   status?: "wait" | "done";
+  cycle: boolean;
+  cycleRule?: string;
+  cycleType?: string;
 }
 import "pinia";
 

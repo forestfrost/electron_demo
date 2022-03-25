@@ -29,9 +29,16 @@ export const useTask = defineStore({
       setTaskTimer(payload);
       return true;
     },
-    doneTask(payload: MyTaskItem) {
+    /**
+     *
+     * @param payload 任务实例
+     * @param force 是否强制置为已办状态,默认为false
+     * @returns
+     */
+    doneTask(payload: MyTaskItem, force: boolean = false) {
       const index = this.taskList.findIndex((item: MyTaskItem) => item.title === payload.title);
       if (index !== -1) {
+        if (!payload.cycle && !force) return;
         this.taskList.splice(index, 1);
         this.doneList.push({ ...payload, status: "done" });
         resort(this.doneList);

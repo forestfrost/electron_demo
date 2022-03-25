@@ -33,6 +33,7 @@
           :note="item"
           @handleOperteNote="OperteNote"
           @editNote="editNote"
+          @checkNote="checkNote"
         ></note-item>
         <template v-if="!showList.length">
           <div class="empty" key="tem_empty_note_block_list"> 现在没有日志录哟,记录一下吧... </div>
@@ -86,6 +87,11 @@
   const addNote = () => {
     selectedNote.value = {} as any;
     type.value = "add";
+    visible.value = true;
+  };
+  const checkNote = (payload: MyNoteItem) => {
+    selectedNote.value = payload;
+    type.value = "check";
     visible.value = true;
   };
   const editNote = (payload: MyNoteItem) => {

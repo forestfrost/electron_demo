@@ -50,7 +50,8 @@ export const useNote = defineStore({
               status: "success",
             },
           ],
-          content: "这是内容",
+          content:
+            "<p>&nbsp; &nbsp; 夏天的清晨,我和你在清净无人的乡间小路.<br/></p><p>&nbsp; &nbsp; 清风拂过,你回过头拉起我的手,一步一步地走过树间散落的阳光.<br/></p>",
         },
       ],
     };

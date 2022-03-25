@@ -1,7 +1,17 @@
 <template>
   <el-drawer v-model="_visible" custom-class="note-add-drawer" size="100%" :with-header="false">
-    <p class="title"> {{ title }} </p>
-    <el-form :rules="rules" :model="ruleForm" ref="Form" inline :label-width="50">
+    <p v-if="props.type === 'check'" class="note-title">
+      {{ note?.title }}
+    </p>
+    <p v-else class="title"> {{ title }} </p>
+    <el-form
+      v-if="props.type !== 'check'"
+      :rules="rules"
+      :model="ruleForm"
+      ref="Form"
+      inline
+      :label-width="50"
+    >
       <el-form-item label="标题" prop="title">
         <el-input v-model="ruleForm.title" clearable placeholder="请输入"></el-input>
       </el-form-item>
@@ -27,6 +37,7 @@
         <el-switch v-model="ruleForm.important" size="small" active-color="#67c23a" />
       </el-form-item>
     </el-form>
+
     <div class="container" ref="con"></div>
     <div class="tags-block">
       <el-tag
@@ -38,7 +49,9 @@
       >
     </div>
     <template #footer>
-      <el-button type="success" size="small" @click="save()">保存</el-button>
+      <el-button v-if="props.type !== 'check'" type="success" size="small" @click="save()"
+        >保存</el-button
+      >
       <el-button size="small" plain @click="_visible = false">返回</el-button>
     </template>
   </el-drawer>
@@ -66,22 +79,42 @@
     },
   });
   const title = computed(() => {
-    return props.type == "add" ? "创建日志录" : "编辑日志录";
+    const title: Record<string, string> = {
+      add: "创建日志录",
+      edit: "编辑日志录",
+      check: "查看日志录",
+    };
+    return title[props.type];
   });
 
   const con: Ref<Element> = ref(null) as any;
   let instance: Edit;
   onMounted(() => {
     nextTick(() => {
+      if (props.type === "check") {
+        getNoteDetail();
+        return;
+      }
       instance = new Edit(con.value);
       instance.config.height = 400;
       instance.config.placeholder = "每一天都有值得记录的东西...";
+      instance.config.uploadImgMaxLength = 3; //一次最多上传3长图片
+      instance.config.showLinkImg = true; //可以输入网络图片
+      instance.config.showLinkImgAlt = false; //关闭网络图片输入ALT
+      instance.config.showLinkImgHref = false; //关闭网络图片输入HREF
+      instance.config.customUploadImg = (resultFiles: File[], insertImgFn: any) => {
+        //自定义上传图片回调
+        resultFiles.forEach((item) => {
+          insertImgFn(item.path);
+        });
+      };
+      instance.config.excludeMenus = ["video", "list", "todo", "emotion", "table"];
       instance.create();
       getNoteDetail();
     });
   });
   onBeforeUnmount(() => {
-    instance.destroy();
+    instance && instance.destroy();
   });
 
   const ruleForm: {
@@ -134,7 +167,11 @@
       ruleForm.title = title;
       ruleForm.tags = tags.map((item) => item.name);
       ruleForm.important = status == "important";
-      instance.txt.html(content);
+      if (props.type === "edit") {
+        instance.txt.html(content);
+      } else if (props.type === "check") {
+        con.value.innerHTML = content;
+      }
     }
   };
 </script>
@@ -146,6 +183,12 @@
       font-weight: bold;
       text-align: center;
       color: #67c23a;
+    }
+    .note-title {
+      margin: 6px 0;
+      font-size: 13px;
+      font-weight: bold;
+      text-align: center;
     }
     .tags-block {
       margin: 12px 0;

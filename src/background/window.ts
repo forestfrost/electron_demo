@@ -5,7 +5,7 @@ import { showNotification } from "./notification";
 import { iconPath } from "./utils/config";
 import { MyTaskItem } from "@/store/types/task";
 export let win: BrowserWindow;
-export let remind: BrowserWindow;
+export let remindList: Map<string, BrowserWindow> = new Map();
 export let tray: Tray;
 //初始化主窗口
 export async function createWindow() {
@@ -16,6 +16,9 @@ export async function createWindow() {
     width: 600,
     height: 800,
     minWidth: 600,
+    maxWidth: 900,
+    minHeight: 800,
+    maximizable: false,
     webPreferences: {
       backgroundThrottling: false,
       nodeIntegration: true,
@@ -30,15 +33,15 @@ export async function createWindow() {
   } else {
     createProtocol("app");
     // Load the index.html when not in development
-    win.loadURL(`file://${__dirname}/index.html`);
+    await win.loadURL(`file://${__dirname}/index.html`);
+    win.removeMenu();
   }
-  // win.removeMenu();
   attachHide(win, attach);
   setTray();
 }
 //创建定时任务提醒窗体
 export async function createRemindWindow(task: MyTaskItem) {
-  remind = new BrowserWindow({
+  const remind = new BrowserWindow({
     frame: false,
     width: 320,
     height: 380,
@@ -50,7 +53,8 @@ export async function createRemindWindow(task: MyTaskItem) {
       contextIsolation: false,
     },
   });
-  remind.removeMenu();
+  remindList.set(task.title, remind);
+  // remind.removeMenu();
   const size = screen.getPrimaryDisplay().workAreaSize;
   const { y } = tray.getBounds();
   const { width, height } = remind.getBounds();
@@ -64,22 +68,25 @@ export async function createRemindWindow(task: MyTaskItem) {
   remind.setAlwaysOnTop(true);
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
-    remind.loadURL(process.env.WEBPACK_DEV_SERVER_URL + "/remind.html");
+    await remind.loadURL(process.env.WEBPACK_DEV_SERVER_URL + "/remind.html");
   } else {
     createProtocol("app");
-    remind.loadURL(`app://./remind.html`);
+    await remind.loadURL(`app://./remind.html`);
   }
   remind.show();
   remind.on("closed", () => {
-    remind = null as any;
+    let temp = task;
+    remindList.get(temp.title) && remindList.set(temp.title, null as any);
   });
   showNotification("快动起来吧", task.title, task.remark);
   setTimeout(() => {
-    remind && remind.close();
-  }, 50 * 1000);
-  remind.webContents.on("did-finish-load", () => {
-    remind.webContents.send("setTask", task);
-  });
+    let temp = task;
+    const res = remindList.get(temp.title);
+    if (res) {
+      res.close();
+    }
+  }, 15 * 1000);
+  remind.webContents.send("setTask", task);
 }
 //设置系统托盘(为主窗口(win)设置)
 export function setTray() {

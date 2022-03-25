@@ -22,8 +22,8 @@ export function debounce(fn: Function, delay: number) {
   };
 }
 export function getDiffBetweenDates(
-  start: string,
-  end: string,
+  start: string | Date,
+  end: string | Date,
   type: "year" | "month" | "day" | "hour" | "minute" | "second" | "millisecond" = "millisecond",
 ) {
   return dayjs(end).diff(start, type);

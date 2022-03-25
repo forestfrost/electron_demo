@@ -8,7 +8,7 @@
       {{ wordList[index2] }}
     </p>
   </div>
-  <p class="close" @click="closeRemindWin">知道啦~</p>
+  <p class="close" @click="_closeRemindWin">知道啦~</p>
   <div
     class="background"
     :style="{
@@ -35,6 +35,10 @@
     "事亲以敬，美过三牲",
     "人的归属在自己心中",
   ];
+
+  const _closeRemindWin = () => {
+    closeRemindWin({ ...remindMsg.value });
+  };
 </script>
 <style>
   @keyframes animate {

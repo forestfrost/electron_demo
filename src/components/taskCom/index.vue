@@ -16,7 +16,7 @@
         </el-icon>
       </p>
       <div>
-        <el-button type="success" size="small" circle @click="visible = true">
+        <el-button type="success" size="small" circle @click="operateTask({} as any, 'add')">
           <el-icon>
             <plus />
           </el-icon>
@@ -27,12 +27,14 @@
       <transition-group name="list">
         <task-item
           v-for="item in showList"
-          @handle-commit="taskStore.doneTask(item)"
+          @handle-commit="taskStore.doneTask(item, true)"
           @handle-cancel="taskStore.cancelTask(item)"
           :title="item.title"
           :time="item.time"
           :status="item.status"
           :remark="item.remark"
+          :cycle="item.cycle"
+          :cycle-type="item.cycleType"
           :key="item.title + item.time + item.status"
         ></task-item>
         <template v-if="!showList.length">
@@ -49,13 +51,14 @@
       <arrow-down />
     </el-icon>
 
-    <addDialogVue v-model:visible="visible"></addDialogVue>
+    <!-- <addDialogVue v-model:visible="visible"></addDialogVue> -->
+    <addDrawerVue v-model:visible="visible" :type="type" :task-detail="selectedTask"></addDrawerVue>
   </div>
 </template>
 
 <script lang="ts" setup>
   import TaskItem from "./components/taskItem.vue";
-  import addDialogVue from "./components/addDialog.vue";
+  import addDrawerVue from "./components/addDrawer.vue";
   import { useTask } from "@/store/models/task";
   import { showBottom, useBottom, scrollThreeRow } from "@/hooks/bottom";
   import { watchComOpen } from "@/hooks/openOrClose";
@@ -64,7 +67,15 @@
   import { MyTaskItem } from "@/store/types/task";
   doneTaskIPC();
   const container: Ref<Element> = ref(null) as any;
+
   let visible = ref(false);
+  const type = ref("");
+  let selectedTask: MyTaskItem;
+  const operateTask = (task: MyTaskItem, typeTemp: string) => {
+    selectedTask = task;
+    type.value = typeTemp;
+    visible.value = true;
+  };
   let mode = ref(0); // 当前查看的事项类型 1,待办 2,已办
   const isBottom = ref(false);
   useBottom(container, isBottom);
@@ -104,12 +115,24 @@
       deep: true,
     },
   );
+
   const comOpen = ref(true);
   const openOrClose = () => {
     comOpen.value = !comOpen.value;
   };
   const conClass = ref("");
   watchComOpen(comOpen, conClass);
+  watch(
+    conClass,
+    () => {
+      setTimeout(() => {
+        showBottom(container, isBottom);
+      }, 600);
+    },
+    {
+      flush: "post",
+    },
+  );
 </script>
 <style lang="less" scoped>
   .task-block {

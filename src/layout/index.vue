@@ -8,10 +8,10 @@
       <div class="item" @click="miniMainWin">
         <el-icon><minus /></el-icon>
       </div>
-      <div class="item" @click="_maxOrNot">
+      <!-- <div class="item" @click="_maxOrNot">
         <el-icon v-if="!isMaximized"><full-screen /></el-icon>
         <el-icon v-else><copy-document /></el-icon>
-      </div>
+      </div> -->
       <div class="item close" @click="closeMainWin">
         <el-icon><close /></el-icon>
       </div>
@@ -23,13 +23,6 @@
     </div>
     <div class="row">
       <Note></Note>
-    </div>
-    <div class="row">
-      <el-button circle size="small" type="success" @click="test">
-        <el-icon>
-          <plus />
-        </el-icon>
-      </el-button>
     </div>
   </div>
 </template>
@@ -46,7 +39,6 @@
     isMaximized.value = !isMaximized.value;
     maxOrNot();
   };
-  const test = () => {};
 </script>
 
 <style lang="less" scoped>

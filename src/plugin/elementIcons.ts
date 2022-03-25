@@ -20,6 +20,7 @@ import {
   Delete,
   Key,
   PriceTag,
+  Reading,
 } from "@element-plus/icons-vue";
 
 const components = [
@@ -41,6 +42,7 @@ const components = [
   Delete,
   Key,
   PriceTag,
+  Reading,
 ];
 
 export default {

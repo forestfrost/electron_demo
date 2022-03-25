@@ -26,6 +26,11 @@
       </div></div
     >
     <div class="rt" :style="{ transform: `translateX(${distance}px)` }">
+      <el-button size="small" circle type="success" @click="handleCheckNote">
+        <el-icon>
+          <reading></reading>
+        </el-icon>
+      </el-button>
       <template v-if="noteItem.status !== 'lock'">
         <el-button size="small" circle type="primary" @click="handleEditNote">
           <template #icon>
@@ -72,22 +77,25 @@
   const props = defineProps<{
     note: MyNoteItem;
   }>();
-  const emit = defineEmits(["handleOperteNote", "editNote"]);
+  const emit = defineEmits(["handleOperteNote", "editNote", "checkNote"]);
   const noteItem = computed(() => {
     return props.note;
   });
+  const handleCheckNote = () => {
+    emit("checkNote", noteItem.value);
+  };
   const handleOperteNote = (status: "lock" | "normal" | "deleted" | "important") => {
     emit("handleOperteNote", { ...noteItem.value, status });
   };
   const handleEditNote = () => {
     emit("editNote", noteItem.value);
   };
-  const distance = ref(100);
+  const distance = ref(150);
   const enter = () => {
     distance.value = 0;
   };
   const leave = () => {
-    distance.value = 100;
+    distance.value = 150;
   };
 </script>
 <style lang="less" scoped>

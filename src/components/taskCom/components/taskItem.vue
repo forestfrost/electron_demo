@@ -2,7 +2,7 @@
   <div class="task-item flex-space-between" @mouseenter="enter" @mouseleave="leave">
     <div class="flex-space-between">
       <p class="des"> {{ props.title }}</p>
-      <p class="des special-des">{{ time }}</p>
+      <p class="des special-des">{{ time }}{{ `(${props.cycleType})` }}</p>
       <p class="des">{{ props.remark }}</p>
     </div>
 
@@ -37,13 +37,20 @@
       required: true,
     },
     time: {
-      type: String,
+      type: Date,
       required: true,
     },
     status: {
       type: String,
     },
     remark: {
+      type: String,
+    },
+    cycle: {
+      type: Boolean,
+      required: true,
+    },
+    cycleType: {
       type: String,
     },
   });
@@ -55,11 +62,7 @@
     emit("handleCancel", { title: props.title, time: props.time });
   };
   const time = computed(() => {
-    if (props.status === "wait") {
-      return formatDate(props.time, "HH:mm");
-    } else if (props.status === "done") {
-      return props.time;
-    }
+    return formatDate(props.time, "HH:mm:ss");
   });
 
   const distance = ref(100);
