@@ -40,7 +40,6 @@ export async function createWindow(firstOpen: boolean = false) {
   setTray();
   if (firstOpen) {
     console.log("应用首次开启:APPREADY", 1111);
-
     win.webContents.send("APPREADY");
   }
 }
@@ -59,7 +58,7 @@ export async function createRemindWindow(task: MyTaskItem) {
     },
   });
   remindList.set(task.title, remind);
-  // remind.removeMenu();
+  remind.removeMenu();
   const size = screen.getPrimaryDisplay().workAreaSize;
   const { y } = tray.getBounds();
   const { width, height } = remind.getBounds();

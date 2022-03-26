@@ -180,7 +180,7 @@
     }
   };
   const checkTime = (rule: any, value: string, cb: any) => {
-    if (Before(value, new Date())) {
+    if (Before(value, new Date()) && !ruleForm.cycle) {
       return cb(new Error("选择时间已经过去啦"));
     }
     cb();
