@@ -10,6 +10,7 @@ let timerList = new Map();
 let scheduleList = new Map();
 export const setIPC = () => {
   ipc.on("setTaskTimer", (event: IpcMainEvent, payload: MyTaskItem) => {
+    console.log("主进程新建任务", payload);
     if (!payload.cycle) {
       //非重复任务,直接定时器设置即可
       const today = formatDate(new Date(), "YYYY-MM-DD HH:mm:ss");

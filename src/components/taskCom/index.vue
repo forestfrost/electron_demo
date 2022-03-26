@@ -29,6 +29,7 @@
           v-for="item in showList"
           @handle-commit="taskStore.doneTask(item, true)"
           @handle-cancel="taskStore.cancelTask(item)"
+          @handle-edit="operateTask(item, 'edit')"
           :title="item.title"
           :time="item.time"
           :status="item.status"
@@ -63,16 +64,17 @@
   import { showBottom, useBottom, scrollThreeRow } from "@/hooks/bottom";
   import { watchComOpen } from "@/hooks/openOrClose";
   import { ref, Ref, watch, nextTick, computed } from "vue";
-  import { doneTaskIPC } from "@/utils/useIPC";
+  import { doneTaskIPC, appReady } from "@/utils/useIPC";
   import { MyTaskItem } from "@/store/types/task";
   doneTaskIPC();
+  appReady();
   const container: Ref<Element> = ref(null) as any;
 
   let visible = ref(false);
   const type = ref("");
-  let selectedTask: MyTaskItem;
+  let selectedTask: Ref<MyTaskItem> = ref(null) as any;
   const operateTask = (task: MyTaskItem, typeTemp: string) => {
-    selectedTask = task;
+    selectedTask.value = task;
     type.value = typeTemp;
     visible.value = true;
   };

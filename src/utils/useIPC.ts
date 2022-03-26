@@ -54,12 +54,12 @@ export function doneTaskIPC() {
     useTask().doneTask(task, true);
   });
 }
-// //主进程启动后,向渲染进程通知
-// export function appReady(){
-//   ipcRenderer.on("APPREADY",(event,flag:boolean)=>{
-
-//   })
-// }
+//主进程启动后,向渲染进程通知
+export function appReady() {
+  ipcRenderer.on("APPREADY", () => {
+    useTask().reloadTask();
+  });
+}
 //选择本地图片或视频后告知渲染进程选择结果
 // export function getResForSelectPicOrVideo() {
 //   const res: Ref<Array<string>> = ref([]);

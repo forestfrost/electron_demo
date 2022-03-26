@@ -8,7 +8,7 @@ export let win: BrowserWindow;
 export let remindList: Map<string, BrowserWindow> = new Map();
 export let tray: Tray;
 //初始化主窗口
-export async function createWindow() {
+export async function createWindow(firstOpen: boolean = false) {
   // Create the browser window.
   win = new BrowserWindow({
     frame: false,
@@ -38,6 +38,11 @@ export async function createWindow() {
   }
   attachHide(win, attach);
   setTray();
+  if (firstOpen) {
+    console.log("应用首次开启:APPREADY", 1111);
+
+    win.webContents.send("APPREADY");
+  }
 }
 //创建定时任务提醒窗体
 export async function createRemindWindow(task: MyTaskItem) {

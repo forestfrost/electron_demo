@@ -4,7 +4,6 @@
 
 declare module 'vue' {
   export interface GlobalComponents {
-    AddDialog: typeof import('./../src/components/taskCom/components/addDialog.vue')['default']
     AddDrawer: typeof import('./../src/components/noteCom/components/addDrawer.vue')['default']
     AddTag: typeof import('./../src/components/noteCom/components/addTag.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']

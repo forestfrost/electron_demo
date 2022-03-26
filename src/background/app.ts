@@ -2,8 +2,16 @@ import { app, BrowserWindow, session } from "electron";
 import { showNotification } from "./notification";
 import { isDevelopment, extensionPath } from "./utils/config";
 import { createWindow } from "./window";
-import { resolve } from "path";
+import { resolve, basename } from "path";
+
 export const setApp = () => {
+  const exeName = basename(process.execPath);
+  app.setLoginItemSettings({
+    openAtLogin: true,
+    openAsHidden: false,
+    path: process.execPath,
+    args: ["--processStart", `"${exeName}"`],
+  });
   app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
       app.quit();
@@ -13,7 +21,7 @@ export const setApp = () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
   app.on("ready", async () => {
-    createWindow();
+    createWindow(true);
   });
   if (isDevelopment) {
     if (process.platform === "win32") {

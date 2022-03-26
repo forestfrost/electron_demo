@@ -25,7 +25,7 @@
         <span>{{ noteItem.time }}</span>
       </div></div
     >
-    <div class="rt" :style="{ transform: `translateX(${distance}px)` }">
+    <div class="rt" :style="{ opacity: opacity }">
       <el-button size="small" circle type="success" @click="handleCheckNote">
         <el-icon>
           <reading></reading>
@@ -90,12 +90,13 @@
   const handleEditNote = () => {
     emit("editNote", noteItem.value);
   };
-  const distance = ref(150);
+
+  const opacity = ref(0);
   const enter = () => {
-    distance.value = 0;
+    opacity.value = 1;
   };
   const leave = () => {
-    distance.value = 150;
+    opacity.value = 0;
   };
 </script>
 <style lang="less" scoped>

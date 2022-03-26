@@ -27,10 +27,19 @@
         ></el-input>
       </el-form-item>
       <el-form-item prop="time" label="时间">
-        <el-time-picker v-model="ruleForm.time" placeholder="请选择" />
+        <el-time-picker
+          v-model="ruleForm.time"
+          placeholder="请选择"
+          :clearable="false"
+          :editable="false"
+        />
       </el-form-item>
       <el-form-item label="重复">
-        <el-select v-model="ruleForm.cycleRule" placeholder="请选择" @change="handleSelectTime">
+        <el-select
+          v-model="ruleForm.cycleRule"
+          placeholder="请选择"
+          @change="handleSelectCycleRule"
+        >
           <el-option v-for="item in options" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
@@ -48,7 +57,7 @@
 <script lang="ts" setup>
   import { useTask } from "@/store/models/task";
   import { MyTaskItem } from "@/store/types/task";
-  import { Before, formatDate } from "@/utils/common";
+  import { Before, getDiffBetweenDates } from "@/utils/common";
   import { ElMessage, FormInstance } from "element-plus";
   import { Ref } from "vue";
 
@@ -66,6 +75,7 @@
       emit("update:visible", val);
     },
   });
+
   const title = computed(() => {
     const title: Record<string, string> = {
       check: "查看任务",
@@ -80,7 +90,7 @@
     return now;
   };
 
-  const ruleForm: MyTaskItem = reactive({
+  let ruleForm: MyTaskItem = reactive({
     title: "",
     time: getNow(),
     cycle: false,
@@ -89,10 +99,26 @@
     cycleType: "",
   });
   const resetForm = () => {
-    handleSelectTime("");
+    handleSelectCycleRule("");
+    ruleForm.title = "";
     ruleForm.remark = "";
     ruleForm.time = getNow();
   };
+  watch(_visible, (val) => {
+    if (!val) {
+      resetForm();
+    } else {
+      if (props.taskDetail && props.type === "edit") {
+        const { title, time, cycle, remark, cycleRule, cycleType } = props.taskDetail;
+        ruleForm.title = title;
+        ruleForm.time = new Date(time);
+        ruleForm.cycle = cycle;
+        ruleForm.remark = remark;
+        ruleForm.cycleRule = cycleRule;
+        ruleForm.cycleType = cycleType;
+      }
+    }
+  });
   let selectedTime = computed(() => {
     return {
       second: ruleForm.time.getSeconds(),
@@ -103,31 +129,52 @@
       month: ruleForm.time.getMonth() + 1,
     };
   });
-  let options = [
-    { label: "一次性任务", value: "" },
-    {
-      label: "每天",
-      value: `${selectedTime.value.second} ${selectedTime.value.minute} ${selectedTime.value.hour} * * *`,
+  watch(selectedTime, () => {
+    if (
+      props.type === "edit" &&
+      props.taskDetail &&
+      getDiffBetweenDates(props.taskDetail.time, ruleForm.time, "second") == 0
+    ) {
+      ruleForm.cycleRule = props.taskDetail.cycleRule;
+    } else {
+      ruleForm.cycleRule = "";
+    }
+  });
+  let options: Ref<Array<Record<string, string>>> = ref([]);
+  watch(
+    selectedTime,
+    (val) => {
+      options.value = [
+        { label: "一次性任务", value: "" },
+        {
+          label: "每天",
+          value: `${val.second} ${val.minute} ${val.hour} * * *`,
+        },
+        {
+          label: "每周一至周五",
+          value: `${val.second} ${val.minute} ${val.hour} * * 1-5`,
+        },
+        {
+          label: "每周",
+          value: `${val.second} ${val.minute} ${val.hour} * * ${val.dayOfWeek}`,
+        },
+        {
+          label: "每月",
+          value: `${val.second} ${val.minute} ${val.hour} ${val.day} * *`,
+        },
+      ];
     },
     {
-      label: "每周一至周五",
-      value: `${selectedTime.value.second} ${selectedTime.value.minute} ${selectedTime.value.hour} * * 1-5`,
+      immediate: true,
     },
-    {
-      label: "每周",
-      value: `${selectedTime.value.second} ${selectedTime.value.minute} ${selectedTime.value.hour} * * ${selectedTime.value.dayOfWeek}`,
-    },
-    {
-      label: "每月",
-      value: `${selectedTime.value.second} ${selectedTime.value.minute} ${selectedTime.value.hour} ${selectedTime.value.day} * *`,
-    },
-  ];
-  const handleSelectTime = (val: string) => {
+  );
+
+  const handleSelectCycleRule = (val: string) => {
     if (val === "") {
       ruleForm.cycle = false;
       ruleForm.cycleType = "";
     } else {
-      const option = options.find((item) => item.value === val);
+      const option = options.value.find((item) => item.value === val);
       ruleForm.cycle = true;
       ruleForm.cycleType = option?.label;
     }
@@ -143,14 +190,14 @@
       {
         required: true,
         message: "请输入任务名称",
-        trigger: "change",
+        trigger: "blur",
       },
     ],
     time: [
       { required: true, message: "请选择时间", trigger: "change" },
       {
         validator: checkTime,
-        trigger: "change",
+        trigger: "blur",
       },
     ],
     remark: [
@@ -168,6 +215,9 @@
     FormTemp.validate((valid) => {
       if (valid) {
         const taskStore = useTask();
+        if (props.type === "edit" && props.taskDetail) {
+          taskStore.cancelTask(props.taskDetail);
+        }
         const res = taskStore.addTask({
           title: ruleForm.title,
           time: ruleForm.time,
@@ -185,11 +235,6 @@
       }
     });
   };
-  watch(_visible, (val) => {
-    if (!val) {
-      resetForm();
-    }
-  });
 </script>
 <style lang="less">
   .add-task-drawer {
