@@ -17,7 +17,6 @@ export async function createWindow(firstOpen: boolean = false) {
     height: 800,
     minWidth: 600,
     maxWidth: 900,
-    minHeight: 800,
     maximizable: false,
     webPreferences: {
       backgroundThrottling: false,

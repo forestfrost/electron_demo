@@ -19,41 +19,25 @@ const resort = (array: Array<MyNoteItem>) => {
 };
 export const useNote = defineStore({
   id: "note",
+  persist: {
+    enabled: true,
+    strategies: [
+      {
+        key: "noteList",
+        storage: localStorage,
+        paths: ["noteList"],
+      },
+      {
+        key: "tagList",
+        storage: localStorage,
+        paths: ["tagList"],
+      },
+    ],
+  },
   state: () => {
     return {
-      tagList: [
-        {
-          name: "测试",
-          createTime: "2022-03-22 09:38:16",
-          status: "success",
-        },
-        {
-          name: "活动",
-          createTime: "2022-03-22 09:38:16",
-          status: "danger",
-        },
-        {
-          name: "知识",
-          createTime: "2022-03-22 09:38:16",
-          status: "warning",
-        },
-      ],
-      noteList: [
-        {
-          title: "关于我一直痴心妄想这件事",
-          time: "2022-03-22 09:38:16",
-          status: "lock",
-          tags: [
-            {
-              name: "测试",
-              createTime: "2022-03-22 09:38:16",
-              status: "success",
-            },
-          ],
-          content:
-            "<p>&nbsp; &nbsp; 夏天的清晨,我和你在清净无人的乡间小路.<br/></p><p>&nbsp; &nbsp; 清风拂过,你回过头拉起我的手,一步一步地走过树间散落的阳光.<br/></p>",
-        },
-      ],
+      tagList: [] as Array<MyTagItem>,
+      noteList: [] as Array<MyNoteItem>,
     };
   },
   getters: {
