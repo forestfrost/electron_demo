@@ -52,8 +52,10 @@ export async function createRemindWindow(task: MyTaskItem) {
     resizable: false,
     show: false,
     webPreferences: {
+      backgroundThrottling: false,
       nodeIntegration: true,
       contextIsolation: false,
+      webSecurity: false,
     },
   });
   remindList.set(task.title, remind);
@@ -74,7 +76,7 @@ export async function createRemindWindow(task: MyTaskItem) {
     await remind.loadURL(process.env.WEBPACK_DEV_SERVER_URL + "/remind.html");
   } else {
     createProtocol("app");
-    await remind.loadURL(`app://./remind.html`);
+    await remind.loadURL(`file://${__dirname}/remind.html`);
   }
   remind.show();
   remind.on("closed", () => {
