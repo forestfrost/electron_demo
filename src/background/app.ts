@@ -7,7 +7,6 @@ import { resolve, basename } from "path";
 export const setApp = () => {
   const exeName = basename(process.execPath);
   app.setLoginItemSettings({
-    openAtLogin: true,
     openAsHidden: false,
     path: process.execPath,
     args: ["--processStart", `"${exeName}"`],
